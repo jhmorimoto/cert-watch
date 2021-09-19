@@ -1,0 +1,7 @@
+domain: morimoto.net.br
+layout:
+- go.kubebuilder.io/v3
+multigroup: true
+projectName: cert-watch
+repo: github.com/jhmorimoto/cert-watch
+version: "3"
