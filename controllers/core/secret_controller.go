@@ -15,7 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var retryPeriodSeconds = time.Second*10
+var retryPeriod = time.Second*10
 
 // SecretReconciler reconciles a Secret object
 type SecretReconciler struct {
@@ -29,7 +29,7 @@ type SecretReconciler struct {
 func (r *SecretReconciler) updateCertWatcher(ctx context.Context, certwatcher *certwatchv1.CertWatcher) (ctrl.Result, error) {
 	if err := r.Status().Update(ctx, certwatcher); err != nil {
 		klog.Errorf("%s/%s Unable to update CertWatcher: %s", certwatcher.Namespace, certwatcher.Name, err.Error())
-		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriodSeconds}, err
+		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 	}
 	return ctrl.Result{}, nil
 }
@@ -48,7 +48,7 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	if err != nil {
 		klog.Errorf("%s/%s Unable to serialize secret data: %s", s.Namespace, s.Name, err.Error())
 		// Wait a minute before trying again
-		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriodSeconds}, err
+		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 	}
 
 	// Find CertWatchers that watch this particular Secret and update their statuses
@@ -62,11 +62,11 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		for _, cw := range cwList.Items {
 			if cw.Status.Status != "Ready" {
 				klog.Warningf("%s/%s Secret updated, but CertWatcher %s/%s is not Ready. Will retry in %d seconds", s.Namespace, s.Name, cw.Namespace, cw.Name, retryPeriodSeconds/time.Second)
-				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriodSeconds}, err
+				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.ActionStatus == "Pending" {
 				klog.Errorf("%s/%s Secret updated, but CertWatcher %s/%s actions still pending. Will retry in %d seconds", s.Namespace, s.Name, cw.Namespace, cw.Name, retryPeriodSeconds/time.Second)
-				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriodSeconds}, err
+				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.LastChecksum != dataChecksum {
 				cw.Status.LastUpdate = apimachineryv1.Now()

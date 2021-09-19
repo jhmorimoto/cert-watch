@@ -17,7 +17,7 @@ import (
 	"github.com/jhmorimoto/cert-watch/util"
 )
 
-var retryPeriodSeconds = time.Second*10
+var retryPeriod = time.Second*10
 
 // CertWatcherReconciler reconciles a CertWatcher object
 type CertWatcherReconciler struct {
@@ -28,7 +28,7 @@ type CertWatcherReconciler struct {
 func (r *CertWatcherReconciler) updateCertWatcher(ctx context.Context, certwatcher *certwatchv1.CertWatcher) (ctrl.Result, error) {
 	if err := r.Status().Update(ctx, certwatcher); err != nil {
 		klog.Errorf("%s/%s Unable to update CertWatcher: %s", certwatcher.Namespace, certwatcher.Name, err.Error())
-		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriodSeconds}, err
+		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 	}
 	return ctrl.Result{}, nil
 }
