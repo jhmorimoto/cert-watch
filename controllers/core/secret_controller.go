@@ -36,6 +36,15 @@ type SecretReconciler struct {
 //+kubebuilder:rbac:groups=core,resources=secrets/status,verbs=get
 
 func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	var s corev1.Secret
+	err := r.Get(ctx, req.NamespacedName, &s)
+	if err != nil {
+		klog.Warningf("Unable to get secret %s/%s: %s", req.Namespace, req.Name, err.Error())
+		return ctrl.Result{}, client.IgnoreNotFound(nil)
+	}
+	if s.Type != "kubernetes.io/tls" {
+		return ctrl.Result{}, client.IgnoreNotFound(nil)
+	}
 	klog.Infof("Secret is here %s/%s", req.Namespace, req.Name)
 	return ctrl.Result{}, nil
 }
