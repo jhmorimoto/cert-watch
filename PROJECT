@@ -4,4 +4,10 @@ layout:
 multigroup: true
 projectName: cert-watch
 repo: github.com/jhmorimoto/cert-watch
+resources:
+- controller: true
+  group: core
+  kind: Secret
+  path: k8s.io/api/core/v1
+  version: v1
 version: "3"
