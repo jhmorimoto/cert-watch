@@ -1,0 +1,8 @@
+apiVersion: certwatch.morimoto.net.br/v1
+kind: CertWatcher
+metadata:
+  name: certwatcher-sample
+spec:
+  secret:
+    name: hello-tls
+    namespace: default

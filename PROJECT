@@ -10,4 +10,13 @@ resources:
   kind: Secret
   path: k8s.io/api/core/v1
   version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: morimoto.net.br
+  group: certwatch
+  kind: CertWatcher
+  path: github.com/jhmorimoto/cert-watch/apis/certwatch/v1
+  version: v1
 version: "3"

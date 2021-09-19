@@ -1,0 +1,20 @@
+# permissions for end users to view certwatchers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: certwatcher-viewer-role
+rules:
+- apiGroups:
+  - certwatch.morimoto.net.br
+  resources:
+  - certwatchers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - certwatch.morimoto.net.br
+  resources:
+  - certwatchers/status
+  verbs:
+  - get

@@ -7,6 +7,32 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - certwatch.morimoto.net.br
+  resources:
+  - certwatchers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - certwatch.morimoto.net.br
+  resources:
+  - certwatchers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - certwatch.morimoto.net.br
+  resources:
+  - certwatchers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - ""
   resources:
   - secrets
