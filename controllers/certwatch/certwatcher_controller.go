@@ -17,7 +17,7 @@ import (
 	"github.com/jhmorimoto/cert-watch/util"
 )
 
-var retryPeriod = time.Second*10
+var retryPeriod = time.Second * 10
 
 // CertWatcherReconciler reconciles a CertWatcher object
 type CertWatcherReconciler struct {
@@ -60,7 +60,7 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		var checksum string
 		err = r.Get(ctx, types.NamespacedName{Namespace: certwatcher.Spec.Secret.Namespace, Name: certwatcher.Spec.Secret.Name}, &secret)
 		if err != nil {
-			klog.Errorf("%s/%s Unable to find Secret %s/%s", certwatcher.Namespace, certwatcher.Name, certwatcher.Spec.Secret.Namespace, certwatcher.Spec.Secret.Name, err.Error())
+			klog.Errorf("%s/%s Unable to find Secret %s/%s: %s", certwatcher.Namespace, certwatcher.Name, certwatcher.Spec.Secret.Namespace, certwatcher.Spec.Secret.Name, err.Error())
 			certwatcher.Status.Message = fmt.Sprintf("Unable to find Secret %s/%s: %s", certwatcher.Spec.Secret.Namespace, certwatcher.Spec.Secret.Name, err.Error())
 			return r.updateCertWatcher(ctx, &certwatcher)
 		}
@@ -76,7 +76,6 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		certwatcher.Status.LastUpdate = apimachineryv1.Now()
 		return r.updateCertWatcher(ctx, &certwatcher)
 	}
-
 
 	if certwatcher.Status.ActionStatus == "Pending" {
 		klog.Infof("%s/%s running actions", certwatcher.Namespace, certwatcher.Name)

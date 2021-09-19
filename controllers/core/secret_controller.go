@@ -15,7 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var retryPeriod = time.Second*10
+var retryPeriod = time.Second * 10
 
 // SecretReconciler reconciles a Secret object
 type SecretReconciler struct {
@@ -61,11 +61,11 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	if cwListLen > 0 {
 		for _, cw := range cwList.Items {
 			if cw.Status.Status != "Ready" {
-				klog.Warningf("%s/%s Secret updated, but CertWatcher %s/%s is not Ready. Will retry in %d seconds", s.Namespace, s.Name, cw.Namespace, cw.Name, retryPeriodSeconds/time.Second)
+				klog.Warningf("%s/%s Secret updated, but CertWatcher %s/%s is not Ready. Will retry in %d seconds", s.Namespace, s.Name, cw.Namespace, cw.Name, retryPeriod/time.Second)
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.ActionStatus == "Pending" {
-				klog.Errorf("%s/%s Secret updated, but CertWatcher %s/%s actions still pending. Will retry in %d seconds", s.Namespace, s.Name, cw.Namespace, cw.Name, retryPeriodSeconds/time.Second)
+				klog.Errorf("%s/%s Secret updated, but CertWatcher %s/%s actions still pending. Will retry in %d seconds", s.Namespace, s.Name, cw.Namespace, cw.Name, retryPeriod/time.Second)
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.LastChecksum != dataChecksum {
