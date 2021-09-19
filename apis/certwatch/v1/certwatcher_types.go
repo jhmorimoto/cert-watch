@@ -42,9 +42,11 @@ type CertWatcherStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
+	Status       string      `json:"status,omitempty"`
 	LastUpdate   metav1.Time `json:"lastUpdate,omitempty"`
 	LastChecksum string      `json:"lastChecksum,omitempty"`
-	Checksum     string      `json:"checksum,omitempty"`
+	ActionStatus string      `json:"actionStatus,omitempty"`
+	Message      string      `json:"message,omitempty"`
 }
 
 //+kubebuilder:object:root=true

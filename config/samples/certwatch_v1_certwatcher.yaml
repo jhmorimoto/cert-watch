@@ -6,3 +6,6 @@ spec:
   secret:
     name: hello-tls
     namespace: default
+  actions:
+    echo:
+      enabled: true
