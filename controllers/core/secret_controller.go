@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	apimachineryv1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -63,11 +64,11 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		for _, cw := range cwList.Items {
 			var cwlogname string = cw.Namespace+"/"+cw.Name
 			if cw.Status.Status != "Ready" {
-				log.Info(secretlogname+" Secret updated, but CertWatcher "+cwlogname+" is not Ready. Will retry in "+string(retryPeriod/time.Second)+" seconds")
+				log.Info(secretlogname+" Secret updated, but CertWatcher "+cwlogname+" is not Ready. Will retry in "+fmt.Sprintf("%d",retryPeriod/time.Second)+" seconds")
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.ActionStatus == "Pending" {
-				log.Error(err, secretlogname+" Secret updated, but CertWatcher "+cwlogname+" actions still pending. Will retry in "+string(retryPeriod/time.Second)+" seconds")
+				log.Error(err, secretlogname+" Secret updated, but CertWatcher "+cwlogname+" actions still pending. Will retry in "+fmt.Sprintf("%d",retryPeriod/time.Second)+" seconds")
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.LastChecksum != dataChecksum {
