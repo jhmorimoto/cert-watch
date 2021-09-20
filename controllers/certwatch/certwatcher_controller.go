@@ -2,14 +2,12 @@ package certwatch
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	apimachineryv1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/klog"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -18,6 +16,7 @@ import (
 )
 
 var retryPeriod = time.Second * 10
+var log = ctrl.Log.WithName("CertWatcherController")
 
 // CertWatcherReconciler reconciles a CertWatcher object
 type CertWatcherReconciler struct {
@@ -27,7 +26,7 @@ type CertWatcherReconciler struct {
 
 func (r *CertWatcherReconciler) updateCertWatcher(ctx context.Context, certwatcher *certwatchv1.CertWatcher) (ctrl.Result, error) {
 	if err := r.Status().Update(ctx, certwatcher); err != nil {
-		klog.Errorf("%s/%s Unable to update CertWatcher: %s", certwatcher.Namespace, certwatcher.Name, err.Error())
+		log.Error(err, certwatcher.Namespace+"/"+certwatcher.Namespace+" Unable to update CertWatcher")
 		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 	}
 	return ctrl.Result{}, nil
@@ -48,11 +47,14 @@ func (r *CertWatcherReconciler) updateCertWatcher(ctx context.Context, certwatch
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var certwatcher certwatchv1.CertWatcher
+	var cwlogname string = req.Namespace+"/"+req.Name
 	err := r.Get(ctx, req.NamespacedName, &certwatcher)
 	if err != nil {
-		klog.Warningf("Unable to get CertWatcher %s/%s: %s", req.Namespace, req.Name, err.Error())
+		log.Info(err.Error())
 		return ctrl.Result{}, client.IgnoreNotFound(nil)
 	}
+
+	var secretlogname = certwatcher.Spec.Secret.Namespace+"/"+certwatcher.Spec.Secret.Name
 
 	if certwatcher.Status.Status != "Ready" {
 		certwatcher.Status.Status = "NotReady"
@@ -60,13 +62,14 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		var checksum string
 		err = r.Get(ctx, types.NamespacedName{Namespace: certwatcher.Spec.Secret.Namespace, Name: certwatcher.Spec.Secret.Name}, &secret)
 		if err != nil {
-			klog.Errorf("%s/%s Unable to find Secret %s/%s: %s", certwatcher.Namespace, certwatcher.Name, certwatcher.Spec.Secret.Namespace, certwatcher.Spec.Secret.Name, err.Error())
-			certwatcher.Status.Message = fmt.Sprintf("Unable to find Secret %s/%s: %s", certwatcher.Spec.Secret.Namespace, certwatcher.Spec.Secret.Name, err.Error())
+			log.Error(err, cwlogname+" Unable to find Secret "+secretlogname)
+			certwatcher.Status.Message = "Unable to find Secret "+secretlogname+": "+err.Error()
 			return r.updateCertWatcher(ctx, &certwatcher)
 		}
 		checksum, err = util.SecretDataChecksum(&secret)
 		if err != nil {
-			certwatcher.Status.Message = fmt.Sprintf("Unable to calculate Secret checksum %s/%s: %s", certwatcher.Spec.Secret.Namespace, certwatcher.Spec.Secret.Name, err.Error())
+			log.Error(err, cwlogname+" Unable to calculate Secret checksum "+secretlogname)
+			certwatcher.Status.Message = "Unable to calculate Secret checksum "+secretlogname+": "+err.Error()
 			return r.updateCertWatcher(ctx, &certwatcher)
 		}
 		certwatcher.Status.LastChecksum = checksum
@@ -74,14 +77,15 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		certwatcher.Status.Message = "CertWatcher successfully initialized"
 		certwatcher.Status.ActionStatus = ""
 		certwatcher.Status.LastUpdate = apimachineryv1.Now()
+		log.Info(cwlogname+" CertWatcher successfully initialized")
 		return r.updateCertWatcher(ctx, &certwatcher)
 	}
 
 	if certwatcher.Status.ActionStatus == "Pending" {
-		klog.Infof("%s/%s running actions", certwatcher.Namespace, certwatcher.Name)
+		log.Info(cwlogname+" Running actions")
 		time.Sleep(10 * time.Second)
 		if certwatcher.Spec.Actions.Echo.Enabled {
-			klog.Infof("%s/%s is letting your know this Secret has just changed %s/%s", certwatcher.Namespace, certwatcher.Name, certwatcher.Spec.Secret.Namespace, certwatcher.Spec.Secret.Name)
+			log.Info(cwlogname+" is letting your know this Secret has just changed "+secretlogname)
 		}
 		certwatcher.Status.ActionStatus = "Ready"
 		certwatcher.Status.Message = "Action processig finished successfully"
@@ -102,7 +106,7 @@ func (r *CertWatcherReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return []string{cw.Spec.Secret.Name}
 	})
 	if err != nil {
-		klog.Errorf("Unable to create index for .spec.secret.name: %s", err.Error())
+		log.Error(err, "Unable to create index for .spec.secret.name")
 		return err
 	}
 
@@ -112,7 +116,7 @@ func (r *CertWatcherReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return []string{cw.Spec.Secret.Namespace}
 	})
 	if err != nil {
-		klog.Errorf("Unable to create index for .spec.secret.namespace: %s", err.Error())
+		log.Error(err, "Unable to create index for .spec.secret.namespace")
 		return err
 	}
 

@@ -10,12 +10,12 @@ import (
 	"github.com/jhmorimoto/cert-watch/util"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/klog"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var retryPeriod = time.Second * 10
+var log = ctrl.Log.WithName("SecretController")
 
 // SecretReconciler reconciles a Secret object
 type SecretReconciler struct {
@@ -28,17 +28,18 @@ type SecretReconciler struct {
 
 func (r *SecretReconciler) updateCertWatcher(ctx context.Context, certwatcher *certwatchv1.CertWatcher) (ctrl.Result, error) {
 	if err := r.Status().Update(ctx, certwatcher); err != nil {
-		klog.Errorf("%s/%s Unable to update CertWatcher: %s", certwatcher.Namespace, certwatcher.Name, err.Error())
+		log.Error(err, certwatcher.Namespace+"/"+certwatcher.Name+" Unable to update CertWatcher")
 		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 	}
 	return ctrl.Result{}, nil
 }
 
 func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	var secretlogname string = req.Namespace+"/"+req.Name
 	var s corev1.Secret
 	err := r.Get(ctx, req.NamespacedName, &s)
 	if err != nil {
-		klog.Warningf("Unable to get Secret %s/%s: %s", req.Namespace, req.Name, err.Error())
+		log.Error(err, secretlogname+" Unable to get Secret")
 		return ctrl.Result{}, client.IgnoreNotFound(nil)
 	}
 	if s.Type != "kubernetes.io/tls" {
@@ -46,7 +47,7 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 	dataChecksum, err := util.SecretDataChecksum(&s)
 	if err != nil {
-		klog.Errorf("%s/%s Unable to serialize secret data: %s", s.Namespace, s.Name, err.Error())
+		log.Error(err, secretlogname+" Unable to serialize secret data")
 		// Wait a minute before trying again
 		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 	}
@@ -55,17 +56,18 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	var cwList certwatchv1.CertWatcherList
 	err = r.List(ctx, &cwList, client.MatchingFields{".spec.secret.name": s.Name}, client.InNamespace(s.Namespace))
 	if err != nil {
-		klog.Errorf("Unable to get CertWatcher list: %s", err.Error())
+		log.Error(err, secretlogname+" Unable to get CertWatcher list")
 	}
 	cwListLen := len(cwList.Items)
 	if cwListLen > 0 {
 		for _, cw := range cwList.Items {
+			var cwlogname string = cw.Namespace+"/"+cw.Name
 			if cw.Status.Status != "Ready" {
-				klog.Warningf("%s/%s Secret updated, but CertWatcher %s/%s is not Ready. Will retry in %d seconds", s.Namespace, s.Name, cw.Namespace, cw.Name, retryPeriod/time.Second)
+				log.Info(secretlogname+" Secret updated, but CertWatcher "+cwlogname+" is not Ready. Will retry in "+string(retryPeriod/time.Second)+" seconds")
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.ActionStatus == "Pending" {
-				klog.Errorf("%s/%s Secret updated, but CertWatcher %s/%s actions still pending. Will retry in %d seconds", s.Namespace, s.Name, cw.Namespace, cw.Name, retryPeriod/time.Second)
+				log.Error(err, secretlogname+" Secret updated, but CertWatcher "+cwlogname+" actions still pending. Will retry in "+string(retryPeriod/time.Second)+" seconds")
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.LastChecksum != dataChecksum {
@@ -77,7 +79,7 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			}
 		}
 	} else {
-		klog.Infof("%s/%s does not seem to have any CertWatchers", s.Namespace, s.Name)
+		log.Info(secretlogname+" Secret does not seem to have any CertWatchers")
 	}
 	return ctrl.Result{}, nil
 }
