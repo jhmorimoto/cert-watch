@@ -47,14 +47,14 @@ func (r *CertWatcherReconciler) updateCertWatcher(ctx context.Context, certwatch
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var certwatcher certwatchv1.CertWatcher
-	var cwlogname string = req.Namespace+"/"+req.Name
+	var cwlogname string = req.Namespace + "/" + req.Name
 	err := r.Get(ctx, req.NamespacedName, &certwatcher)
 	if err != nil {
 		log.Info(err.Error())
 		return ctrl.Result{}, client.IgnoreNotFound(nil)
 	}
 
-	var secretlogname = certwatcher.Spec.Secret.Namespace+"/"+certwatcher.Spec.Secret.Name
+	var secretlogname = certwatcher.Spec.Secret.Namespace + "/" + certwatcher.Spec.Secret.Name
 
 	if certwatcher.Status.Status != "Ready" {
 		certwatcher.Status.Status = "NotReady"
@@ -63,13 +63,13 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		err = r.Get(ctx, types.NamespacedName{Namespace: certwatcher.Spec.Secret.Namespace, Name: certwatcher.Spec.Secret.Name}, &secret)
 		if err != nil {
 			log.Error(err, cwlogname+" Unable to find Secret "+secretlogname)
-			certwatcher.Status.Message = "Unable to find Secret "+secretlogname+": "+err.Error()
+			certwatcher.Status.Message = "Unable to find Secret " + secretlogname + ": " + err.Error()
 			return r.updateCertWatcher(ctx, &certwatcher)
 		}
 		checksum, err = util.SecretDataChecksum(&secret)
 		if err != nil {
 			log.Error(err, cwlogname+" Unable to calculate Secret checksum "+secretlogname)
-			certwatcher.Status.Message = "Unable to calculate Secret checksum "+secretlogname+": "+err.Error()
+			certwatcher.Status.Message = "Unable to calculate Secret checksum " + secretlogname + ": " + err.Error()
 			return r.updateCertWatcher(ctx, &certwatcher)
 		}
 		certwatcher.Status.LastChecksum = checksum
@@ -77,15 +77,15 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		certwatcher.Status.Message = "CertWatcher successfully initialized"
 		certwatcher.Status.ActionStatus = ""
 		certwatcher.Status.LastUpdate = apimachineryv1.Now()
-		log.Info(cwlogname+" CertWatcher successfully initialized")
+		log.Info(cwlogname + " CertWatcher successfully initialized")
 		return r.updateCertWatcher(ctx, &certwatcher)
 	}
 
 	if certwatcher.Status.ActionStatus == "Pending" {
-		log.Info(cwlogname+" Running actions")
+		log.Info(cwlogname + " Running actions")
 		time.Sleep(10 * time.Second)
 		if certwatcher.Spec.Actions.Echo.Enabled {
-			log.Info(cwlogname+" is letting your know this Secret has just changed "+secretlogname)
+			log.Info(cwlogname + " is letting your know this Secret has just changed " + secretlogname)
 		}
 		certwatcher.Status.ActionStatus = "Ready"
 		certwatcher.Status.Message = "Action processig finished successfully"

@@ -36,7 +36,7 @@ func (r *SecretReconciler) updateCertWatcher(ctx context.Context, certwatcher *c
 }
 
 func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	var secretlogname string = req.Namespace+"/"+req.Name
+	var secretlogname string = req.Namespace + "/" + req.Name
 	var s corev1.Secret
 	err := r.Get(ctx, req.NamespacedName, &s)
 	if err != nil {
@@ -62,13 +62,13 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	cwListLen := len(cwList.Items)
 	if cwListLen > 0 {
 		for _, cw := range cwList.Items {
-			var cwlogname string = cw.Namespace+"/"+cw.Name
+			var cwlogname string = cw.Namespace + "/" + cw.Name
 			if cw.Status.Status != "Ready" {
-				log.Info(secretlogname+" Secret updated, but CertWatcher "+cwlogname+" is not Ready. Will retry in "+fmt.Sprintf("%d",retryPeriod/time.Second)+" seconds")
+				log.Info(secretlogname + " Secret updated, but CertWatcher " + cwlogname + " is not Ready. Will retry in " + fmt.Sprintf("%d", retryPeriod/time.Second) + " seconds")
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.ActionStatus == "Pending" {
-				log.Error(err, secretlogname+" Secret updated, but CertWatcher "+cwlogname+" actions still pending. Will retry in "+fmt.Sprintf("%d",retryPeriod/time.Second)+" seconds")
+				log.Error(err, secretlogname+" Secret updated, but CertWatcher "+cwlogname+" actions still pending. Will retry in "+fmt.Sprintf("%d", retryPeriod/time.Second)+" seconds")
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.LastChecksum != dataChecksum {
@@ -80,7 +80,7 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			}
 		}
 	} else {
-		log.Info(secretlogname+" Secret does not seem to have any CertWatchers")
+		log.Info(secretlogname + " Secret does not seem to have any CertWatchers")
 	}
 	return ctrl.Result{}, nil
 }
