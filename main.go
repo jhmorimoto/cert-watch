@@ -68,6 +68,7 @@ func main() {
 	if err = (&corecontrollers.SecretReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
+		EventRecorder: mgr.GetEventRecorderFor("SecretReconciler"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Secret")
 		os.Exit(1)
@@ -75,6 +76,8 @@ func main() {
 	if err = (&certwatchcontrollers.CertWatcherReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
+		EventRecorder: mgr.GetEventRecorderFor("CertWatcherReconciler"),
+	}).SetupWithManager(mgr); err != nil {
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CertWatcher")
 		os.Exit(1)

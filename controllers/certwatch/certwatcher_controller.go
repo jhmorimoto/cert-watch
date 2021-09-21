@@ -22,11 +22,14 @@ var log = ctrl.Log.WithName("CertWatcherController")
 type CertWatcherReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	EventRecorder record.EventRecorder
+}
 }
 
 func (r *CertWatcherReconciler) updateCertWatcher(ctx context.Context, certwatcher *certwatchv1.CertWatcher) (ctrl.Result, error) {
 	if err := r.Status().Update(ctx, certwatcher); err != nil {
-		log.Error(err, certwatcher.Namespace+"/"+certwatcher.Namespace+" Unable to update CertWatcher")
+		r.EventRecorder.Eventf(certwatcher, "Warning", "CertWatcherFailure", "Unable update CertWatcher: %s", err.Error())
+		// log.Error(err, certwatcher.Namespace+"/"+certwatcher.Namespace+" Unable to update CertWatcher")
 		return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 	}
 	return ctrl.Result{}, nil
@@ -58,17 +61,17 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 	if certwatcher.Status.Status != "Ready" {
 		certwatcher.Status.Status = "NotReady"
-		var secret corev1.Secret
+		var secret apicorev1.Secret
 		var checksum string
 		err = r.Get(ctx, types.NamespacedName{Namespace: certwatcher.Spec.Secret.Namespace, Name: certwatcher.Spec.Secret.Name}, &secret)
 		if err != nil {
-			log.Error(err, cwlogname+" Unable to find Secret "+secretlogname)
+			r.EventRecorder.Eventf(&certwatcher, "Warning", "CertWatcherInit", "Unable to find Secret %s: %s", secretlogname, err.Error())
 			certwatcher.Status.Message = "Unable to find Secret " + secretlogname + ": " + err.Error()
 			return r.updateCertWatcher(ctx, &certwatcher)
 		}
 		checksum, err = util.SecretDataChecksum(&secret)
 		if err != nil {
-			log.Error(err, cwlogname+" Unable to calculate Secret checksum "+secretlogname)
+			r.EventRecorder.Eventf(&certwatcher, "Warning", "CertWatcherInit", "calculate secret checksum %s: %s", secretlogname, err.Error())
 			certwatcher.Status.Message = "Unable to calculate Secret checksum " + secretlogname + ": " + err.Error()
 			return r.updateCertWatcher(ctx, &certwatcher)
 		}
@@ -77,15 +80,21 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		certwatcher.Status.Message = "CertWatcher successfully initialized"
 		certwatcher.Status.ActionStatus = ""
 		certwatcher.Status.LastUpdate = apimachineryv1.Now()
-		log.Info(cwlogname + " CertWatcher successfully initialized")
+		r.EventRecorder.Eventf(&certwatcher, "Normal", "CertWatcherInit", "CertWatcher successfully initialized")
 		return r.updateCertWatcher(ctx, &certwatcher)
 	}
 
 	if certwatcher.Status.ActionStatus == "Pending" {
-		log.Info(cwlogname + " Running actions")
-		time.Sleep(10 * time.Second)
+		r.EventRecorder.Eventf(&certwatcher, "Normal", "CertWatcherProcessing", "Processing pending actions")
+		var secret apicorev1.Secret
+		err = r.Get(ctx, types.NamespacedName{Namespace: certwatcher.Spec.Secret.Namespace, Name: certwatcher.Spec.Secret.Name}, &secret)
+		if err != nil {
+			r.EventRecorder.Eventf(&certwatcher, "Warning", "CertWatcherProcessing", "Unable to find Secret for processing %s", secretlogname)
+			certwatcher.Status.Message = "Unable to find Secret for processing" + secretlogname + ": " + err.Error()
+			return r.updateCertWatcher(ctx, &certwatcher)
+		}
 		if certwatcher.Spec.Actions.Echo.Enabled {
-			log.Info(cwlogname + " is letting your know this Secret has just changed " + secretlogname)
+			r.EventRecorder.Eventf(&certwatcher, "Normal", "CertWatcherProcessing", "ECHO: Good morning to %s", secretlogname)
 		}
 		certwatcher.Status.ActionStatus = "Ready"
 		certwatcher.Status.Message = "Action processig finished successfully"

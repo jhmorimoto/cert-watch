@@ -2,13 +2,13 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	apimachineryv1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/record"
 
 	certwatchv1 "github.com/jhmorimoto/cert-watch/apis/certwatch/v1"
-	"github.com/jhmorimoto/cert-watch/util"
+	"github.com/jhmorimoto/cert-watch/controllers/util"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -22,6 +22,7 @@ var log = ctrl.Log.WithName("SecretController")
 type SecretReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	EventRecorder record.EventRecorder
 }
 
 //+kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch
@@ -62,13 +63,12 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	cwListLen := len(cwList.Items)
 	if cwListLen > 0 {
 		for _, cw := range cwList.Items {
-			var cwlogname string = cw.Namespace + "/" + cw.Name
 			if cw.Status.Status != "Ready" {
-				log.Info(secretlogname + " Secret updated, but CertWatcher " + cwlogname + " is not Ready. Will retry in " + fmt.Sprintf("%d", retryPeriod/time.Second) + " seconds")
+				r.EventRecorder.Eventf(&cw, "Warning", "SecretChanged", "Secret changed, but CertWatcher not Ready. Will retry later.")
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.ActionStatus == "Pending" {
-				log.Error(err, secretlogname+" Secret updated, but CertWatcher "+cwlogname+" actions still pending. Will retry in "+fmt.Sprintf("%d", retryPeriod/time.Second)+" seconds")
+				r.EventRecorder.Eventf(&cw, "Warning", "SecretChanged", "Secret changed, but CertWatcher hs Pending actions. Will retry later.")
 				return ctrl.Result{Requeue: true, RequeueAfter: retryPeriod}, err
 			}
 			if cw.Status.LastChecksum != dataChecksum {
@@ -76,6 +76,7 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 				cw.Status.LastChecksum = dataChecksum
 				cw.Status.Message = "Checksum updated"
 				cw.Status.ActionStatus = "Pending"
+				r.EventRecorder.Eventf(&cw, "Normal", "SecretChanged", "Updating CertWatcher status.")
 				return r.updateCertWatcher(ctx, &cw)
 			}
 		}
