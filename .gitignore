@@ -18,3 +18,4 @@
 bin
 testbin
 .tmp
+config/email/email2.properties

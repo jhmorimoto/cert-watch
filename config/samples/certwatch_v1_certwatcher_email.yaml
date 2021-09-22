@@ -1,0 +1,23 @@
+apiVersion: certwatch.morimoto.net.br/v1
+kind: CertWatcher
+metadata:
+  name: email
+spec:
+  secret:
+    name: hello-tls
+    namespace: default
+  # filenamesPrefix: hello
+  # pkcs12Password: lalala
+  # zipFilesPassword: lalala
+  actions:
+    email:
+      enabled: true
+      configFile: /home/juliohm/workspace/github/cert-watch/config/email/email.properties
+      to: jhmorimoto@hotmail.com
+      # from: "CertWatch <no-reply@email.com>"
+      subject: "Certificate has changed"
+      bodyContentType: text/html
+      bodyTemplate: |-
+        <h1>The certificate has changed</h1>.
+      attachments:
+        - asdf.all.zip

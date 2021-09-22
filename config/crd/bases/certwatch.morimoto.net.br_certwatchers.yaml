@@ -16,7 +16,29 @@ spec:
     singular: certwatcher
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.secret.namespace
+      name: SECRET_NS
+      type: string
+    - jsonPath: .spec.secret.name
+      name: SECRET_NAME
+      type: string
+    - jsonPath: .status.status
+      name: STATUS
+      type: string
+    - jsonPath: .status.actionStatus
+      name: ACTION_STATUS
+      type: string
+    - jsonPath: .status.lastUpdate
+      name: LAST_UPDATE
+      type: string
+    - jsonPath: .status.lastChecksum
+      name: LAST_CHECKSUM
+      type: string
+    - jsonPath: .status.message
+      name: MESSAGE
+      type: string
+    name: v1
     schema:
       openAPIV3Schema:
         description: CertWatcher is the Schema for the certwatchers API
@@ -37,17 +59,91 @@ spec:
             description: CertWatcherSpec defines the desired state of CertWatcher
             properties:
               actions:
+                description: Actions that should be performed when the watched Secret
+                  changes.
                 properties:
                   echo:
-                    description: Dummy action that simply outputs the secret name
-                      into the controller logs.
+                    description: Dummy action that simply generates an Event informing
+                      the Secret change. Does not perform any useful action and is
+                      mostly used for testing and debugging.
                     properties:
                       enabled:
                         description: Indicates whether this action is enabled. Defaults
                           to false.
                         type: boolean
                     type: object
+                  email:
+                    description: This actions is used to send certificate files via
+                      e-mail. Before sending, both private and public keys are saved
+                      into a temporary workspace directory and converted to various
+                      popular formats that can be used as attachments, such as PEM
+                      and PKCS#12. All files are also zipped to give users the option
+                      to send zipped files, instead of the raw certificates. There
+                      will be one zip file for each indidivual certificate format
+                      and another with all of them together. Zip files can also be
+                      password protected. All these options are provided to give user
+                      multiple options. Quite often, e-mail recipients have anti-virus
+                      software that scans incoming mail and blocks certain file extensions
+                      (scripts and certificates included). To overcome these restrictions,
+                      cert-watch users have the option to send a password protected
+                      zip file. This password is assumed to be shared secret between
+                      sender and receiver and is not managed by cert-watch.
+                    properties:
+                      attachments:
+                        description: List of attachments to send with the email. Paths
+                          are relative to a temporary workspace directory where different
+                          versions of the certificate files are saved before sending
+                          the email. Files will be available in popular formats, like
+                          PEM and PKCS#12, zipped and unzipped.
+                        items:
+                          type: string
+                        type: array
+                      bcc:
+                        description: BCC header to use in the email.
+                        type: string
+                      bodyContentType:
+                        description: 'Email body content type: text/plain or text/html'
+                        type: string
+                      bodyTemplate:
+                        description: Template file used to generate the email body
+                          contents.
+                        type: string
+                      cc:
+                        description: CC  header to use in the email.
+                        type: string
+                      configFile:
+                        description: Configuration file with information about the
+                          email server to use
+                        type: string
+                      enabled:
+                        description: Indicates whether this action is enabled. Defaults
+                          to false.
+                        type: boolean
+                      from:
+                        description: FROM header to use in the email. If not specified,
+                          the value must be specified in configuration file.
+                        type: string
+                      subject:
+                        description: SUBJECT header to use in the email.
+                        type: string
+                      to:
+                        description: TO header to use in the email. A comma separated
+                          list of email addresses.
+                        type: string
+                    required:
+                    - to
+                    type: object
                 type: object
+              filenamesPrefix:
+                description: Filename prefix that should be used in the exported certificate
+                  files. If empty, defaults to "tls", so files will be created in
+                  the temporary workspace directory as tls.key, tls.crt, tls.p12,
+                  etc...
+                type: string
+              pkcs12Password:
+                description: Password that should be used in the PKCS#12 envelope.
+                  If empty, p12 certificate files will not be protected by any password.
+                type: string
               secret:
                 description: Secret watched by CertWatcher
                 properties:
@@ -61,6 +157,12 @@ spec:
                 - name
                 - namespace
                 type: object
+              zipFilesPassword:
+                description: Password that should be used to zip certificate files.
+                  Zipped versions of each certificates are kept along with the raw
+                  files. If this values is empty, zip files will no tbe protected
+                  with any password.
+                type: string
             required:
             - secret
             type: object

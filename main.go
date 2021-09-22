@@ -18,6 +18,7 @@ import (
 	certwatchv1 "github.com/jhmorimoto/cert-watch/apis/certwatch/v1"
 	certwatchcontrollers "github.com/jhmorimoto/cert-watch/controllers/certwatch"
 	corecontrollers "github.com/jhmorimoto/cert-watch/controllers/core"
+	"github.com/magiconair/properties"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -38,6 +39,9 @@ func main() {
 	var enableLeaderElection bool
 	var probeAddr string
 	var logDevMode bool
+	var emailConfigFile string
+
+	flag.StringVar(&emailConfigFile, "emailconfig", "", "Path properties file that holds email configuration.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&logDevMode, "log-dev-mode", true, "Enable/disable log dev mode (zap). If disabled, logs output defaults to json.")
@@ -51,6 +55,14 @@ func main() {
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+
+	var emailConfiguration *properties.Properties
+	if emailConfigFile != "" {
+		emailConfiguration = properties.MustLoadFile(emailConfigFile, properties.UTF8)
+		setupLog.Info("Email configuration loaded from " + emailConfigFile)
+	} else {
+		setupLog.Info("Email not configured")
+	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -66,18 +78,18 @@ func main() {
 	}
 
 	if err = (&corecontrollers.SecretReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:        mgr.GetClient(),
+		Scheme:        mgr.GetScheme(),
 		EventRecorder: mgr.GetEventRecorderFor("SecretReconciler"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Secret")
 		os.Exit(1)
 	}
 	if err = (&certwatchcontrollers.CertWatcherReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-		EventRecorder: mgr.GetEventRecorderFor("CertWatcherReconciler"),
-	}).SetupWithManager(mgr); err != nil {
+		Client:             mgr.GetClient(),
+		Scheme:             mgr.GetScheme(),
+		EmailConfiguration: emailConfiguration,
+		EventRecorder:      mgr.GetEventRecorderFor("CertWatcherReconciler"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CertWatcher")
 		os.Exit(1)
