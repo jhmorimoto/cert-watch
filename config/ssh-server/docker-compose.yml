@@ -1,0 +1,24 @@
+version: "3"
+services:
+  openssh-server:
+    image: ghcr.io/linuxserver/openssh-server
+    container_name: openssh-server
+    hostname: openssh-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      #- PUBLIC_KEY="ssh-ed25519 dddd"
+      #- PUBLIC_KEY_FILE=$PWD/ssh.key.pub
+      - PUBLIC_KEY_DIR=/tmp/pub
+      #- SUDO_ACCESS=false
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=password
+      #- USER_PASSWORD_FILE=/path/to/file
+      - USER_NAME=user
+    volumes:
+      - ./ssh.key.pub:/tmp/pub/ssh.key.pub
+      - ./ssh-nopassphrase.key.pub:/tmp/pub/ssh-nopassphrase.key.pub
+    ports:
+      - 2222:2222
+    restart: unless-stopped

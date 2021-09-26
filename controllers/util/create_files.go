@@ -9,7 +9,7 @@ import (
 	apicorev1 "k8s.io/api/core/v1"
 )
 
-// Export certificates from the Secret, namely tls.key and tls.crt, into a
+// CreateCertificateFiles Export certificates from the Secret, namely tls.key and tls.crt, into a
 // temporary working directory. The path for this temporary directory will be
 // returned and is expected to be removed after CertWatcher Action processing is
 // completed.

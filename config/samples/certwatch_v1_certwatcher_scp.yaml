@@ -1,0 +1,25 @@
+apiVersion: certwatch.morimoto.net.br/v1
+kind: CertWatcher
+metadata:
+  name: scp
+spec:
+  secret:
+    name: example-tls
+    namespace: default
+  # filenamesPrefix: hello
+  # pkcs12Password: lalala
+  # zipFilesPassword: lalala
+  actions:
+    scp:
+      enabled: true
+      hostname: 10.0.0.2
+      port: 2222
+      authType: "key"
+      credentialSecret: default/scp-credentials-keys-nopass
+      files:
+        - name: tls.key
+          remotePath: /tmp
+          mode: "0640"
+        - name: tls.crt
+          remotePath: /tmp
+          mode: "0644"

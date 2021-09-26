@@ -4,7 +4,7 @@ metadata:
   name: echo
 spec:
   secret:
-    name: hello-tls
+    name: example-tls
     namespace: default
   actions:
     echo:

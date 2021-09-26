@@ -117,6 +117,56 @@ spec:
                     required:
                     - to
                     type: object
+                  scp:
+                    description: React to Secret change by copying files to a remote
+                      host via SCP (ssh).
+                    properties:
+                      authType:
+                        description: 'Authentication type to use: password|key. Defaults
+                          to `password`.'
+                        type: string
+                      credentialSecret:
+                        description: Name of the Secret containing credentials to
+                          authenticate. Depending on AuthType, it may contain username,
+                          password, key or passphrase values. The reference to the
+                          Secret should be in the form namespace/secret-name.
+                        type: string
+                      enabled:
+                        description: Indicates whether this action is enabled. Defaults
+                          to false.
+                        type: boolean
+                      files:
+                        description: 'List of files to copy in the format: Filenames
+                          are relative to a temporary workspace where certificates
+                          are stored while they are being processed. After processing,
+                          this temporary directory and all its files are removed.'
+                        items:
+                          description: CertWatchScpFile represents a file that must
+                            be copied to a remote location using the CertWatchActionScp
+                            action. Mode defaults to 0600.
+                          properties:
+                            mode:
+                              type: string
+                            name:
+                              type: string
+                            remotePath:
+                              type: string
+                          required:
+                          - name
+                          - remotePath
+                          type: object
+                        type: array
+                      hostname:
+                        description: Remove hostname to connect to.
+                        type: string
+                      port:
+                        description: Port number to connect to. Defaults to 22.
+                        type: integer
+                    required:
+                    - credentialSecret
+                    - files
+                    - hostname
+                    type: object
                 type: object
               filenamesPrefix:
                 description: Filename prefix that should be used in the exported certificate

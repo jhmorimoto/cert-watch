@@ -23,6 +23,45 @@ type CertWatcherAction struct {
 
 	// React to Secret change by sending e-mails.
 	Email CertWatchActionEmail `json:"email,omitempty"`
+
+	// React to Secret change by copying files to a remote host via SCP (ssh).
+	Scp CertWatchActionScp `json:"scp,omitempty"`
+}
+
+// CertWatchActionScp This action is used to send certificate files via SCP (ssh copy).
+// Authentication credentials are recovered from a given Secret name.
+// Authentication type (AuthType) can be either `password` (for username and
+// password) or `key` for SSH keys.
+type CertWatchActionScp struct {
+	// Indicates whether this action is enabled. Defaults to false.
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Remove hostname to connect to.
+	Hostname string `json:"hostname"`
+
+	// Port number to connect to. Defaults to 22.
+	Port int `json:"port,omitempty"`
+
+	// Name of the Secret containing credentials to authenticate. Depending on
+	// AuthType, it may contain username, password, key or passphrase values.
+	// The reference to the Secret should be in the form namespace/secret-name.
+	CredentialSecret string `json:"credentialSecret"`
+
+	// Authentication type to use: password|key. Defaults to `password`.
+	AuthType string `json:"authType,omitempty"`
+
+	// List of files to copy in the format: Filenames are relative to a temporary
+	// workspace where certificates are stored while they are being processed. After
+	// processing, this temporary directory and all its files are removed.
+	Files []CertWatchScpFile `json:"files"`
+}
+
+// CertWatchScpFile represents a file that must be copied to a remote location
+// using the CertWatchActionScp action. Mode defaults to 0600.
+type CertWatchScpFile struct {
+	Name       string `json:"name"`
+	RemotePath string `json:"remotePath"`
+	Mode       string `json:"mode,omitempty"`
 }
 
 // CertWatchActionEmail This action is used to send certificate files via e-mail.

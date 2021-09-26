@@ -2,7 +2,9 @@ package certwatch
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	apicorev1 "k8s.io/api/core/v1"
@@ -127,6 +129,33 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			err = util.ProcessEmail(&certwatcher, certFilesDir, emailConfig)
 			if err != nil {
 				r.EventRecorder.Eventf(&certwatcher, "Warning", "CertWatcherProcessing", "EMAIL: %s", err.Error())
+				certwatcher.Status.Message = err.Error()
+				return r.updateCertWatcher(ctx, &certwatcher, err)
+			}
+		}
+		if certwatcher.Spec.Actions.Scp.Enabled {
+			if certwatcher.Spec.Actions.Scp.Port == 0 {
+				certwatcher.Spec.Actions.Scp.Port = 22
+			}
+			var credentialSecret apicorev1.Secret
+			var credentialSecretName []string = strings.Split(certwatcher.Spec.Actions.Scp.CredentialSecret, "/")
+			if len(credentialSecretName) < 2 {
+				r.EventRecorder.Eventf(&certwatcher, "Warning", "CertWatcherProcessing",
+					"SCP: Invalid credentialSecret naming format %s", certwatcher.Spec.Actions.Scp.CredentialSecret)
+				certwatcher.Status.Message = fmt.Sprintf("SCP: Invalid credentialSecret naming format %s",
+					certwatcher.Spec.Actions.Scp.CredentialSecret)
+				return r.updateCertWatcher(ctx, &certwatcher, err)
+			}
+			err = r.Get(ctx, types.NamespacedName{Namespace: credentialSecretName[0], Name: credentialSecretName[1]}, &credentialSecret)
+			if err != nil {
+				r.EventRecorder.Eventf(&certwatcher, "Warning", "CertWatcherProcessing", "SCP: %s", err.Error())
+				certwatcher.Status.Message = fmt.Sprintf("SCP: %s", err.Error())
+				return r.updateCertWatcher(ctx, &certwatcher, err)
+			}
+			r.EventRecorder.Eventf(&certwatcher, "Normal", "CertWatcherProcessing", "SCP: Sending files to %s:%d", certwatcher.Spec.Actions.Scp.Hostname, certwatcher.Spec.Actions.Scp.Port)
+			err = util.ProcessScp(&certwatcher, credentialSecret, certFilesDir)
+			if err != nil {
+				r.EventRecorder.Eventf(&certwatcher, "Warning", "CertWatcherProcessing", "SCP: %s", err.Error())
 				certwatcher.Status.Message = err.Error()
 				return r.updateCertWatcher(ctx, &certwatcher, err)
 			}

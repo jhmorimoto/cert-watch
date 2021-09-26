@@ -4,7 +4,7 @@ metadata:
   name: email
 spec:
   secret:
-    name: hello-tls
+    name: example-tls
     namespace: default
   # filenamesPrefix: hello
   # pkcs12Password: lalala
