@@ -12,7 +12,7 @@ spec:
   actions:
     email:
       enabled: true
-      configFile: /home/juliohm/workspace/github/cert-watch/config/email/email.properties
+      configFile: ./config/email/email.properties
       to: jhmorimoto@hotmail.com
       # from: "CertWatch <no-reply@email.com>"
       subject: "Certificate has changed"
