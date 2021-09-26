@@ -15,23 +15,27 @@ type CertWatcherSecret struct {
 	Namespace string `json:"namespace"`
 }
 
+// CertWatcherAction represents one or more actions that will be performed when a
+// Secret change is identified.
 type CertWatcherAction struct {
+	// Dummy action used for testing and debugging.
 	Echo CertWatcherActionEcho `json:"echo,omitempty"`
 
+	// React to Secret change by sending e-mails.
 	Email CertWatchActionEmail `json:"email,omitempty"`
 }
 
-// This actions is used to send certificate files via e-mail. Before sending,
-// both private and public keys are saved into a temporary workspace directory
-// and converted to various popular formats that can be used as attachments,
-// such as PEM and PKCS#12. All files are also zipped to give users the option
-// to send zipped files, instead of the raw certificates. There will be one zip
-// file for each indidivual certificate format and another with all of them
-// together. Zip files can also be password protected. All these options are
-// provided to give user multiple options. Quite often, e-mail recipients have
-// anti-virus software that scans incoming mail and blocks certain file
-// extensions (scripts and certificates included). To overcome these
-// restrictions, cert-watch users have the option to send a password protected
+// CertWatchActionEmail This action is used to send certificate files via e-mail.
+// Before sending, both private and public keys are saved into a temporary
+// workspace directory and converted to various popular formats that can be used
+// as attachments, such as PEM and PKCS#12. All files are also zipped to give
+// users the option to send zipped files, instead of the raw certificates. There
+// will be one zip file for each individual certificate format and another with
+// all of them together. Zip files can also be password protected. All these
+// options are provided to give user multiple options. Quite often, e-mail
+// recipients have anti-virus software that scans incoming mail and blocks
+// certain file extensions (scripts and certificates included). To overcome these
+// restrictions, cert-watch users have the option to send a password-protected
 // zip file. This password is assumed to be shared secret between sender and
 // receiver and is not managed by cert-watch.
 type CertWatchActionEmail struct {
@@ -70,7 +74,7 @@ type CertWatchActionEmail struct {
 	Attachments []string `json:"attachments,omitempty"`
 }
 
-// Dummy action that simply generates an Event informing the Secret change.
+// CertWatcherActionEcho Dummy action that simply generates an Event informing the Secret change.
 // Does not perform any useful action and is mostly used for testing and debugging.
 type CertWatcherActionEcho struct {
 	// Indicates whether this action is enabled. Defaults to false.

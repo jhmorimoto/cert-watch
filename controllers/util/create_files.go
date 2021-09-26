@@ -33,12 +33,12 @@ import (
 //
 // The "tls" filename prefix is determined by the filenamesPrefix argument.
 //
-// If a pkcs12Password is provided, *.p12 files will created with that password.
+// If a pkcs12Password is provided, *.p12 files will be created with that password.
 //
-// If a zipFilesPassword is provided, *.zip files will created with that
+// If a zipFilesPassword is provided, *.zip files will be created with that
 // password.
 //
-// If the function finishes sucessfully, creating all files, the path of the
+// If the function finishes successfully, creating all files, the path of the
 // temporary working directory followed by a nil error is returned. Otherwise,
 // an empty string followed by the error is returned.
 //
