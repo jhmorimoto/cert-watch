@@ -33,24 +33,24 @@ type CertWatcherAction struct {
 // Authentication type (AuthType) can be either `password` (for username and
 // password) or `key` for SSH keys.
 type CertWatchActionScp struct {
-	// Indicates whether this action is enabled. Defaults to false.
+	// Enabled indicates whether this action is enabled. Defaults to false.
 	Enabled bool `json:"enabled,omitempty"`
 
-	// Remove hostname to connect to.
+	// Hostname is the remote hostname to connect to.
 	Hostname string `json:"hostname"`
 
 	// Port number to connect to. Defaults to 22.
 	Port int `json:"port,omitempty"`
 
-	// Name of the Secret containing credentials to authenticate. Depending on
+	// CredentialSecret is the name of the Secret containing credentials to authenticate. Depending on
 	// AuthType, it may contain username, password, key or passphrase values.
 	// The reference to the Secret should be in the form namespace/secret-name.
 	CredentialSecret string `json:"credentialSecret"`
 
-	// Authentication type to use: password|key. Defaults to `password`.
+	// AuthType is the authentication type to use: password|key. Defaults to `password`.
 	AuthType string `json:"authType,omitempty"`
 
-	// List of files to copy in the format: Filenames are relative to a temporary
+	// Files is the list of files to copy. Filenames are relative to a temporary
 	// workspace where certificates are stored while they are being processed. After
 	// processing, this temporary directory and all its files are removed.
 	Files []CertWatchScpFile `json:"files"`
@@ -59,12 +59,20 @@ type CertWatchActionScp struct {
 // CertWatchScpFile represents a file that must be copied to a remote location
 // using the CertWatchActionScp action. Mode defaults to 0600.
 type CertWatchScpFile struct {
-	Name       string `json:"name"`
+	// Name is the name of the local certificate file. Filenames are relative to the
+	// temporary workspace directory.
+	Name string `json:"name"`
+
+	// RemotePath is the full directory path in the remote host where the certificate
+	// will be copied to.
 	RemotePath string `json:"remotePath"`
-	Mode       string `json:"mode,omitempty"`
+
+	// Mode is the file mode the file on the remote host will have. A string in
+	// numeric form, such as 0644.
+	Mode string `json:"mode,omitempty"`
 }
 
-// CertWatchActionEmail This action is used to send certificate files via e-mail.
+// CertWatchActionEmail is used to send certificate files via e-mail.
 // Before sending, both private and public keys are saved into a temporary
 // workspace directory and converted to various popular formats that can be used
 // as attachments, such as PEM and PKCS#12. All files are also zipped to give
@@ -78,43 +86,49 @@ type CertWatchScpFile struct {
 // zip file. This password is assumed to be shared secret between sender and
 // receiver and is not managed by cert-watch.
 type CertWatchActionEmail struct {
-	// Indicates whether this action is enabled. Defaults to false.
+	// Enabled indicates whether this action is enabled. Defaults to false.
 	Enabled bool `json:"enabled,omitempty"`
 
-	// Configuration file with information about the email server to use
+	// ConfigFile is the configuration file with information about the email server
+	// to use
 	ConfigFile string `json:"configFile,omitempty"`
 
-	// FROM header to use in the email. If not specified, the value must be
-	// specified in configuration file.
+	// From is the header that identifies the sender of the e-mail. If not specified
+	// here, the value must be specified in configuration file.
 	From string `json:"from,omitempty"`
 
-	// TO header to use in the email. A comma separated list of email addresses.
+	// To is the header that identifies the recipients of the e-mail. A comma
+	// separated list of e-mail addresses.
 	To string `json:"to"`
 
-	// CC  header to use in the email.
+	// Cc is the header that identifies carbon copy receivers of the e-mail. A comma
+	// separated list of e-mail addresses.
 	Cc string `json:"cc,omitempty"`
 
-	// BCC header to use in the email.
+	// Bcc is the header that identifies blind carbon copy receivers of the e-mail. A
+	// comma separated list of e-mail addresses.
 	Bcc string `json:"bcc,omitempty"`
 
-	// SUBJECT header to use in the email.
+	// Subject is the header that informs the subject of the e-mail.
 	Subject string `json:"subject,omitempty"`
 
-	// Template file used to generate the email body contents.
+	// BodyTemplate is the full contents of the e-mail body to send.
 	BodyTemplate string `json:"bodyTemplate,omitempty"`
 
-	// Email body content type: text/plain or text/html
+	// BodyContentType is the header that identifies the type of content the e-mail
+	// will have: text/plain or text/html
 	BodyContentType string `json:"bodyContentType,omitempty"`
 
-	// List of attachments to send with the email. Paths are relative to a
-	// temporary workspace directory where different versions of the certificate
-	// files are saved before sending the email. Files will be available in
-	// popular formats, like PEM and PKCS#12, zipped and unzipped.
+	// Attachments is the list of attachments to send with the e-mail. Paths are
+	// relative to a temporary workspace directory where different versions of the
+	// certificate files are saved before sending the email. Files will be available
+	// in popular formats, like PEM and PKCS#12, zipped and unzipped.
 	Attachments []string `json:"attachments,omitempty"`
 }
 
-// CertWatcherActionEcho Dummy action that simply generates an Event informing the Secret change.
-// Does not perform any useful action and is mostly used for testing and debugging.
+// CertWatcherActionEcho Dummy action that simply generates an Event informing
+// the Secret change. Does not perform any useful action and is mostly used for
+// testing and debugging.
 type CertWatcherActionEcho struct {
 	// Indicates whether this action is enabled. Defaults to false.
 	Enabled bool `json:"enabled,omitempty"`
@@ -128,18 +142,18 @@ type CertWatcherSpec struct {
 	// Secret watched by CertWatcher
 	Secret CertWatcherSecret `json:"secret"`
 
-	// Password that should be used to zip certificate files. Zipped versions of
-	// each certificates are kept along with the raw files. If this values is
-	// empty, zip files will no tbe protected with any password.
+	// ZipFilesPassword is the password that should be used to zip certificate files.
+	// Zipped versions of each certificates are kept along with the raw files. If
+	// this values is empty, zip files will no tbe protected with any password.
 	ZipFilesPassword string `json:"zipFilesPassword,omitempty"`
 
-	// Password that should be used in the PKCS#12 envelope. If empty, p12
-	// certificate files will not be protected by any password.
+	// Pkcs12Password is the password that should be used in the PKCS#12 envelope. If
+	// empty, p12 certificate files will not be protected by any password.
 	Pkcs12Password string `json:"pkcs12Password,omitempty"`
 
-	// Filename prefix that should be used in the exported certificate files. If
-	// empty, defaults to "tls", so files will be created in the temporary
-	// workspace directory as tls.key, tls.crt, tls.p12, etc...
+	// FilenamesPrefix is the prefix that should be used in the exported certificate
+	// filenames. If empty, defaults to "tls", so files will be created in the
+	// temporary workspace directory as tls.key, tls.crt, tls.p12, etc...
 	FilenamesPrefix string `json:"filenamesPrefix,omitempty"`
 
 	// Actions that should be performed when the watched Secret changes.
