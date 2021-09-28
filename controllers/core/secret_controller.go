@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	apimachineryv1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -47,7 +48,11 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	var s corev1.Secret
 	err := r.Get(ctx, req.NamespacedName, &s)
 	if err != nil {
-		log.Error(err, secretlogname+" Unable to get Secret")
+		if strings.Contains(err.Error(), "not found") {
+			log.Info(secretlogname + " Unable to get Secret: " + err.Error())
+		} else {
+			log.Error(err, secretlogname+" Unable to get Secret")
+		}
 		return ctrl.Result{}, client.IgnoreNotFound(nil)
 	}
 	if s.Type != "kubernetes.io/tls" {

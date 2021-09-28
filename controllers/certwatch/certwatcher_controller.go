@@ -60,10 +60,15 @@ func (r *CertWatcherReconciler) updateCertWatcher(ctx context.Context, certwatch
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	var certwatcherlogname = req.Namespace + "/" + req.Name
 	var certwatcher certwatchv1.CertWatcher
 	err := r.Get(ctx, req.NamespacedName, &certwatcher)
 	if err != nil {
-		log.Info(err.Error())
+		if strings.Contains(err.Error(), "not found") {
+			log.Info(certwatcherlogname + " Unable to get CertWatcher: " + err.Error())
+		} else {
+			log.Error(err, certwatcherlogname+" Unable to get CertWatcher")
+		}
 		return ctrl.Result{}, client.IgnoreNotFound(nil)
 	}
 
