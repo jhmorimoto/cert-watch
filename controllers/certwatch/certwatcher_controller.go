@@ -168,7 +168,7 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 		certwatcher.Status.ActionStatus = "Ready"
 		certwatcher.Status.Message = "Waiting for next Secret change"
-		r.EventRecorder.Eventf(&certwatcher, "Normal", "CertWatcherProcessing", "Action processig finished successfully")
+		r.EventRecorder.Eventf(&certwatcher, "Normal", "CertWatcherProcessing", "Action processing finished successfully")
 		return r.updateCertWatcher(ctx, &certwatcher, nil)
 	}
 
