@@ -106,3 +106,10 @@ GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
 rm -rf $$TMP_DIR ;\
 }
 endef
+
+.PHONY: helm
+
+helm:
+	cp -vr config/crd/bases/* helm-src/cert-watch/templates/crd/
+	cd helm && helm package ../helm-src/cert-watch
+	cd helm && helm repo index .

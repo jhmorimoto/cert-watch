@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cert-watch
+description: Watch and react to changes in Kubernetes TLS Secrets
+type: application
+version: 0.1.0
+appVersion: "latest"
