@@ -178,7 +178,7 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 // SetupWithManager sets up the controller with the Manager.
 func (r *CertWatcherReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
-	// Creating field indeces allows the CRD resource to be searched by MatchingFields.
+	// Creating field indices allows the CRD resource to be searched by MatchingFields.
 
 	// Create index for .spec.secret.name
 	err := mgr.GetFieldIndexer().IndexField(context.Background(), &certwatchv1.CertWatcher{}, ".spec.secret.name", func(rawObj client.Object) []string {
