@@ -12,7 +12,6 @@ spec:
   actions:
     job:
       name: myjob
-      enabled: true
       spec:
         completions: 2
         template:

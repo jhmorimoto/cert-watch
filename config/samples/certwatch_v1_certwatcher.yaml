@@ -7,5 +7,4 @@ spec:
     name: example-tls
     namespace: default
   actions:
-    echo:
-      enabled: true
+    echo: {}

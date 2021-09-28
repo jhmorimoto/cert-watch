@@ -20,25 +20,22 @@ type CertWatcherSecret struct {
 // Secret change is identified.
 type CertWatcherAction struct {
 	// Dummy action used for testing and debugging.
-	Echo CertWatcherActionEcho `json:"echo,omitempty"`
+	Echo *CertWatcherActionEcho `json:"echo,omitempty"`
 
 	// React to Secret change by sending e-mails.
-	Email CertWatchActionEmail `json:"email,omitempty"`
+	Email *CertWatchActionEmail `json:"email,omitempty"`
 
 	// React to Secret change by copying files to a remote host via SCP (ssh).
-	Scp CertWatchActionScp `json:"scp,omitempty"`
+	Scp *CertWatchActionScp `json:"scp,omitempty"`
 
 	// React to Secret change by running a custom Kubernetes Job. Follow the same spec from batch/v1 API.
-	Job CertWatchActionJob `json:"job,omitempty"`
+	Job *CertWatchActionJob `json:"job,omitempty"`
 }
 
 // CertWatchActionJob is used to perform actions upon certificate change by
 // running a Kubernetes Job. The job spec follows the same declaration from the
 // batch/v1 api. https://kubernetes.io/docs/concepts/workloads/controllers/job/
 type CertWatchActionJob struct {
-	// Enabled indicates whether this action is enabled. Defaults to false.
-	Enabled bool `json:"enabled,omitempty"`
-
 	// Name identifies the job that will be executed.
 	Name string `json:"name"`
 
@@ -59,9 +56,6 @@ type CertWatchActionJob struct {
 // Authentication type (AuthType) can be either `password` (for username and
 // password) or `key` for SSH keys.
 type CertWatchActionScp struct {
-	// Enabled indicates whether this action is enabled. Defaults to false.
-	Enabled bool `json:"enabled,omitempty"`
-
 	// Hostname is the remote hostname to connect to.
 	Hostname string `json:"hostname"`
 
@@ -112,9 +106,6 @@ type CertWatchScpFile struct {
 // zip file. This password is assumed to be shared secret between sender and
 // receiver and is not managed by cert-watch.
 type CertWatchActionEmail struct {
-	// Enabled indicates whether this action is enabled. Defaults to false.
-	Enabled bool `json:"enabled,omitempty"`
-
 	// ConfigFile is the configuration file with information about the email server
 	// to use
 	ConfigFile string `json:"configFile,omitempty"`
@@ -156,8 +147,6 @@ type CertWatchActionEmail struct {
 // the Secret change. Does not perform any useful action and is mostly used for
 // testing and debugging.
 type CertWatcherActionEcho struct {
-	// Indicates whether this action is enabled. Defaults to false.
-	Enabled bool `json:"enabled,omitempty"`
 }
 
 // CertWatcherSpec defines the desired state of CertWatcher

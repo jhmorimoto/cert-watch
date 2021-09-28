@@ -64,11 +64,6 @@ spec:
                 properties:
                   echo:
                     description: Dummy action used for testing and debugging.
-                    properties:
-                      enabled:
-                        description: Indicates whether this action is enabled. Defaults
-                          to false.
-                        type: boolean
                     type: object
                   email:
                     description: React to Secret change by sending e-mails.
@@ -105,10 +100,6 @@ spec:
                         description: ConfigFile is the configuration file with information
                           about the email server to use
                         type: string
-                      enabled:
-                        description: Enabled indicates whether this action is enabled.
-                          Defaults to false.
-                        type: boolean
                       from:
                         description: From is the header that identifies the sender
                           of the e-mail. If not specified here, the value must be
@@ -129,10 +120,6 @@ spec:
                     description: React to Secret change by running a custom Kubernetes
                       Job. Follow the same spec from batch/v1 API.
                     properties:
-                      enabled:
-                        description: Enabled indicates whether this action is enabled.
-                          Defaults to false.
-                        type: boolean
                       mountPath:
                         description: MountPath controls the mountPath used in the
                           volume created to mount certificate files into the Job's
@@ -7561,10 +7548,6 @@ spec:
                           contain username, password, key or passphrase values. The
                           reference to the Secret should be in the form namespace/secret-name.
                         type: string
-                      enabled:
-                        description: Enabled indicates whether this action is enabled.
-                          Defaults to false.
-                        type: boolean
                       files:
                         description: Files is the list of files to copy. Filenames
                           are relative to a temporary workspace where certificates

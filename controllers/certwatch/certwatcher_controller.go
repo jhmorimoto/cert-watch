@@ -127,11 +127,11 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			return r.updateCertWatcher(ctx, &certwatcher, err)
 		}
 
-		if certwatcher.Spec.Actions.Echo.Enabled {
+		if certwatcher.Spec.Actions.Echo != nil {
 			r.EventRecorder.Eventf(&certwatcher, "Normal", "CertWatcherProcessing", "ECHO: Good morning to %s", secretlogname)
 		}
 
-		if certwatcher.Spec.Actions.Email.Enabled {
+		if certwatcher.Spec.Actions.Email != nil {
 			var emailConfig = r.EmailConfiguration
 			if certwatcher.Spec.Actions.Email.ConfigFile != "" {
 				emailConfig = properties.MustLoadFile(certwatcher.Spec.Actions.Email.ConfigFile, properties.UTF8)
@@ -144,7 +144,7 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 				return r.updateCertWatcher(ctx, &certwatcher, err)
 			}
 		}
-		if certwatcher.Spec.Actions.Scp.Enabled {
+		if certwatcher.Spec.Actions.Scp != nil {
 			if certwatcher.Spec.Actions.Scp.Port == 0 {
 				certwatcher.Spec.Actions.Scp.Port = 22
 			}
@@ -171,7 +171,7 @@ func (r *CertWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 				return r.updateCertWatcher(ctx, &certwatcher, err)
 			}
 		}
-		if certwatcher.Spec.Actions.Job.Enabled {
+		if certwatcher.Spec.Actions.Job != nil {
 			var job v1.Job
 			var jobname string
 
