@@ -29,7 +29,7 @@ func ProcessJob(certwatcher *certwatchv1.CertWatcher) (*v1.Job, error) {
 
 	job = v1.Job{
 		ObjectMeta: apimachineryv1.ObjectMeta{
-			Namespace: certwatcher.Namespace,
+			Namespace: certwatcher.Spec.Secret.Namespace,
 			Name:      jobname,
 		},
 		Spec: certwatcher.Spec.Actions.Job.Spec,
