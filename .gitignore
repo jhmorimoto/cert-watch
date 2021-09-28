@@ -19,3 +19,4 @@ bin
 testbin
 .tmp
 config/email/email2.properties
+config/samples/example-secret2.yaml
