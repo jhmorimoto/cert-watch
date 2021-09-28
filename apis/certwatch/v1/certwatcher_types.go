@@ -1,6 +1,7 @@
 package v1
 
 import (
+	v1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -26,9 +27,34 @@ type CertWatcherAction struct {
 
 	// React to Secret change by copying files to a remote host via SCP (ssh).
 	Scp CertWatchActionScp `json:"scp,omitempty"`
+
+	// React to Secret change by running a custom Kubernetes Job. Follow the same spec from batch/v1 API.
+	Job CertWatchActionJob `json:"job,omitempty"`
 }
 
-// CertWatchActionScp This action is used to send certificate files via SCP (ssh copy).
+// CertWatchActionJob is used to perform actions upon certificate change by
+// running a Kubernetes Job. The job spec follows the same declaration from the
+// batch/v1 api. https://kubernetes.io/docs/concepts/workloads/controllers/job/
+type CertWatchActionJob struct {
+	// Enabled indicates whether this action is enabled. Defaults to false.
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Name identifies the job that will be executed.
+	Name string `json:"name"`
+
+	// VolumeName controls the name of the volume that will be created to mount
+	// certificate files into the Job's containers. Defaults to "certs".
+	VolumeName string `json:"volumeName,omitempty"`
+
+	// MountPath controls the mountPath used in the volume created to mount
+	// certificate files into the Job's containers. Defaults to "/workspace".
+	MountPath string `json:"mountPath,omitempty"`
+
+	// Spec is a standard Kubernetes job spec.
+	Spec v1.JobSpec `json:"spec"`
+}
+
+// CertWatchActionScp is used to send certificate files via SCP (ssh copy).
 // Authentication credentials are recovered from a given Secret name.
 // Authentication type (AuthType) can be either `password` (for username and
 // password) or `key` for SSH keys.

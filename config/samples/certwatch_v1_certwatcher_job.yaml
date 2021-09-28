@@ -1,0 +1,26 @@
+apiVersion: certwatch.morimoto.net.br/v1
+kind: CertWatcher
+metadata:
+  name: job
+spec:
+  secret:
+    name: example-tls
+    namespace: default
+  # filenamesPrefix: hello
+  # pkcs12Password: lalala
+  # zipFilesPassword: lalala
+  actions:
+    job:
+      name: myjob
+      enabled: true
+      spec:
+        completions: 2
+        template:
+          spec:
+            containers:
+              - name: app
+                image: ubuntu:20.04
+                command: ["cat"]
+                tty: true
+            restartPolicy: Never
+        backoffLimit: 4
