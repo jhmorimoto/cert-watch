@@ -205,7 +205,7 @@ spec:
   secret:
     name: example-tls
     namespace: default
-  zipFilesPassword: my-secret
+  zipFilesPassword: my-password
   actions:
     email:
       ...
