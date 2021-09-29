@@ -16,8 +16,31 @@ Actions can vary from sending an e-mail with certificates attached, copying them
 - [x] React with dummy echo
 - [x] React sending an e-mail
 - [x] React copying files over SCP
-- [ ] Publish Docker image
-- [ ] Publish helm chart
+- [x] Publish Docker image
+- [x] Publish helm chart
+- [ ] Add more features and fix all the bugs...
+- [ ] Release a stable 1.0.0
+
+## Installation via Helm Chart
+
+A helm chart is provided for quick installation. To use it, include the helm repository to your local helm installation.
+
+```shell
+helm repo add cert-watch https://raw.githubusercontent.com/jhmorimoto/cert-watch/main/helm
+helm repo up
+```
+
+Install a release with:
+
+```shell
+helm upgrade --create-namespace --install --n cert-watch cert-watch cert-watch/cert-watch
+```
+
+Be aware there are no stable releases yet. In practice, that means the helm chart is prepared to use the `latest` Docker image and will promptly pull new versions of this tag on every restart (`imagePullPolicy: Always`). Not only that, the compiled binary has debugging flags and log levels enabled for active development. This will continue to be the case for mostly 0.x.x releases, until a stable 1.x.x is reached.
+
+### CRDs managed by Helm
+
+The helm chart also manages the CRDs. At this point, it lacks the annotation to prevent removal of CRDs on `helm delete`. By uninstalling a release, all CRDs and existing CertWatchers in the cluster will be removed as well.
 
 ## User Guide
 
