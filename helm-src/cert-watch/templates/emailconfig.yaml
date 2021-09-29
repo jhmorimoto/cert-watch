@@ -1,0 +1,13 @@
+{{- if .Values.emailConfiguration -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ include "cert-watch.fullname" . }}-emailconfig"
+  labels:
+    {{- include "cert-watch.labels" . | nindent 4 }}
+data:
+  {{- range .Values.emailConfiguration }}
+  {{ .filename }}: |
+    {{- .contents | toString | nindent 4 }}
+  {{- end -}}
+{{- end -}}

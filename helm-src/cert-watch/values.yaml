@@ -14,6 +14,13 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# Arguments to the container main process -- the cert-watch controller.
+args: []
+# Further down below, if at least one email configuration is defined, it will be mounted under
+# /etc/cert-watcher/emailconfig. You can use one of them as a default for all CertWatchers by passing the --emailconfig
+# argument.
+#  - --emailconfig=/etc/cert-watch/emailconfig/email1.properties
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -82,3 +89,21 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Include as many configuration files as you need. They can be used by any CertWatcher or by the main controller
+# process as a default for all CertWatchers. All entries in this list will end up in the same ConfigMap, mounted under
+# /etc/cert-watch/emailconfig directory.
+emailConfiguration: []
+#  - filename: email1.properties
+#    contents: |
+#      host: localhost
+#      port: 1025
+#      from: NoReply <me@host.com>
+#  - filename: email2.properties
+#    contents: |
+#      host: smtp.example.com
+#      port: 25
+#      username: someuser
+#      password: sompassword
+#      encryption: SSL / TLS / SSLTLS / STARTTLS
+#      from: NoReply <me@host.com>
