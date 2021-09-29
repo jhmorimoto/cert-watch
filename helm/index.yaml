@@ -3,12 +3,12 @@ entries:
   cert-watch:
   - apiVersion: v2
     appVersion: latest
-    created: "2021-09-28T21:40:21.979829327-03:00"
+    created: "2021-09-28T21:55:48.782010972-03:00"
     description: Watch and react to changes in Kubernetes TLS Secrets
-    digest: fd9ceb943bb2be8f283eaf120e56cc99c2062806f0a36fc8962b78bdae776e12
+    digest: 0e10d28d20fbd9b926739150286a2303793b6c9cec53a0335e7594ebd6597e62
     name: cert-watch
     type: application
     urls:
     - cert-watch-0.1.0.tgz
     version: 0.1.0
-generated: "2021-09-28T21:40:21.977244029-03:00"
+generated: "2021-09-28T21:55:48.779185116-03:00"
