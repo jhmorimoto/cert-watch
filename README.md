@@ -40,7 +40,24 @@ Be aware there are no stable releases yet. In practice, that means the helm char
 
 ### CRDs managed by Helm
 
-The helm chart also manages the CRDs. At this point, it lacks the annotation to prevent removal of CRDs on `helm delete`. By uninstalling a release, all CRDs and existing CertWatchers in the cluster will be removed as well.
+The helm chart also manages the CRDs and annotates them with `helm.sh/resource-policy: keep`. **When the release is uninstalled, CRDs are not removed from the cluster**. This provides a safe way to uninstall `cert-watch` without immediately losing all CertWatchers you might already have defined.
+
+To remove them manually, you can list all CRDs created by the installation process and `kubectl delete` at your convenience.
+
+Example:
+
+```shell
+$ kubectl get crd | grep certwatch.morimoto.net.br
+certwatchers.certwatch.morimoto.net.br   2021-09-29T23:18:22Z
+
+$ kubectl delete crd certwatchers.certwatch.morimoto.net.br
+```
+
+Optionally, if you have the source code for this project, you can run the `uninstall` target from the `Makefile`.
+
+```shell
+make uninstall
+```
 
 ## User Guide
 

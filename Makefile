@@ -110,6 +110,6 @@ endef
 .PHONY: helm
 
 helm:
-	cp -vr config/crd/bases/* helm-src/cert-watch/templates/crd/
+	$(KUSTOMIZE) build config/crd -o helm-src/cert-watch/templates/crd/
 	cd helm && helm package ../helm-src/cert-watch
 	cd helm && helm repo index .
