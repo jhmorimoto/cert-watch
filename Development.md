@@ -2,6 +2,8 @@
 
 This project is still in early stages of development, so any help is appreciated. To build and run the controller yourself locally, the following instructions may help.
 
+Releases follow the [Semantic Versioning Specification 2.0.0 (SemVer)](https://semver.org).
+
 ## Build and run
 
 As a requirement, you will need a working kubernetes cluster. Tools like [Minikube](https://minikube.sigs.k8s.io/docs/start/) and [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/) provide an instant out-of-the-box Kubernetes you can use for testing. Make sure to configure your local KUBECONFIG file to use the desired cluster.
