@@ -36,6 +36,13 @@ Install a release with:
 helm upgrade --create-namespace --install -n cert-watch cert-watch cert-watch/cert-watch
 ```
 
+When a new version is available, the same `helm upgrade` should bring you up to speed.
+
+```shell
+helm repo up
+helm upgrade --create-namespace --install -n cert-watch cert-watch cert-watch/cert-watch
+```
+
 Be aware there are no stable releases yet. In practice, that means the helm chart is prepared to use the `latest` Docker image and will promptly pull new versions of this tag on every restart (`imagePullPolicy: Always`). Not only that, the compiled binary has debugging flags and log levels enabled for active development. This will continue to be the case for mostly 0.x.x releases, until a stable 1.x.x is reached.
 
 ### CRDs managed by Helm
