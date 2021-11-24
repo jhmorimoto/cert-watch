@@ -1,5 +1,9 @@
 # Helm Chart Changelog
 
+## 0.2.3
+
+Fix helm chart template. Remove reference to autoscaling.
+
 ## 0.2.2
 
 Include missing permissions to "events" from Event Recorder in RBAC rules.
