@@ -41,4 +41,4 @@ The reaction to labels is an included behavior to facilitate testing and develop
 
 ---
 
-_Powered by [kubebuilder](https://book.kubebuilder.io)._
+_Powered by [kubebuilder 2.3.2](https://book.kubebuilder.io)._

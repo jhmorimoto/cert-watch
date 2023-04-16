@@ -76,4 +76,4 @@ If you wish to contribute or would like to run the controller yourself locally, 
 
 ---
 
-_Powered by [kubebuilder](https://book.kubebuilder.io)._
+_Powered by [kubebuilder 2.3.2](https://book.kubebuilder.io)._
