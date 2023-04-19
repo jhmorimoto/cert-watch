@@ -41,7 +41,6 @@ import (
 // If the function finishes successfully, creating all files, the path of the
 // temporary working directory followed by a nil error is returned. Otherwise,
 // an empty string followed by the error is returned.
-//
 func CreateCertificateFiles(secret *apicorev1.Secret, filenamesPrefix string, zipFilesPassword string, pkcs12Password string) (string, error) {
 	var err error
 	var secretname string = fmt.Sprintf("%s/%s", secret.Namespace, secret.Name)

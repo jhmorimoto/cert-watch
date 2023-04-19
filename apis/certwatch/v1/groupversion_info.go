@@ -1,6 +1,6 @@
 // Package v1 contains API Schema definitions for the certwatch v1 API group
-//+kubebuilder:object:generate=true
-//+groupName=certwatch.morimoto.net.br
+// +kubebuilder:object:generate=true
+// +groupName=certwatch.morimoto.net.br
 package v1
 
 import (
