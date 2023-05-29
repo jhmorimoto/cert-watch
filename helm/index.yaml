@@ -2,8 +2,18 @@ apiVersion: v1
 entries:
   cert-watch:
   - apiVersion: v2
+    appVersion: 1.1.0
+    created: "2023-05-29T16:57:58.541983161-03:00"
+    description: Watch and react to changes in Kubernetes TLS Secrets
+    digest: 6716fb28a760db348960608b052b2ec2d83de7935ebcbc1f71cf02eb4ba1dcdf
+    name: cert-watch
+    type: application
+    urls:
+    - cert-watch-1.1.0.tgz
+    version: 1.1.0
+  - apiVersion: v2
     appVersion: 1.0.0
-    created: "2023-04-18T23:51:18.175409481-03:00"
+    created: "2023-05-29T16:57:58.538856279-03:00"
     description: Watch and react to changes in Kubernetes TLS Secrets
     digest: 4e4c0635182a20b8cee6747d5b364b9b2573da9697acdcfe4597bbbc49c15334
     name: cert-watch
@@ -13,7 +23,7 @@ entries:
     version: 1.0.0
   - apiVersion: v2
     appVersion: latest
-    created: "2023-04-18T23:51:18.17219581-03:00"
+    created: "2023-05-29T16:57:58.536725522-03:00"
     description: Watch and react to changes in Kubernetes TLS Secrets
     digest: 3a296f5491a614fcf7244ca310b05846573c79c540c06d0197dff9a244202681
     name: cert-watch
@@ -23,7 +33,7 @@ entries:
     version: 0.2.3
   - apiVersion: v2
     appVersion: latest
-    created: "2023-04-18T23:51:18.169926178-03:00"
+    created: "2023-05-29T16:57:58.533640809-03:00"
     description: Watch and react to changes in Kubernetes TLS Secrets
     digest: eeaa86353a6bbc8a0bd00142aab835f469aa57ad359008f6be2c9890cd926c89
     name: cert-watch
@@ -33,7 +43,7 @@ entries:
     version: 0.2.2
   - apiVersion: v2
     appVersion: latest
-    created: "2023-04-18T23:51:18.166653968-03:00"
+    created: "2023-05-29T16:57:58.531524937-03:00"
     description: Watch and react to changes in Kubernetes TLS Secrets
     digest: e81e2e761afd427064062d67b9097a0f9dc8b6b86cccbbb55823d380d53cb02f
     name: cert-watch
@@ -43,7 +53,7 @@ entries:
     version: 0.2.1
   - apiVersion: v2
     appVersion: latest
-    created: "2023-04-18T23:51:18.162834946-03:00"
+    created: "2023-05-29T16:57:58.527995909-03:00"
     description: Watch and react to changes in Kubernetes TLS Secrets
     digest: 303638ca3278a892d968d7047aacb50e7ce314a929d627812644e5881b43de93
     name: cert-watch
@@ -53,7 +63,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: latest
-    created: "2023-04-18T23:51:18.157048374-03:00"
+    created: "2023-05-29T16:57:58.52422047-03:00"
     description: Watch and react to changes in Kubernetes TLS Secrets
     digest: d147ce214c8758f0bce9ea629172fbaa1f99591ae86521a136c757946a749bcd
     name: cert-watch
@@ -63,7 +73,7 @@ entries:
     version: 0.1.2
   - apiVersion: v2
     appVersion: latest
-    created: "2023-04-18T23:51:18.154246341-03:00"
+    created: "2023-05-29T16:57:58.521576322-03:00"
     description: Watch and react to changes in Kubernetes TLS Secrets
     digest: 281991f3097e586024e90f24304f66c58cddbb26e53a12d4b5a18a49933983bf
     name: cert-watch
@@ -73,7 +83,7 @@ entries:
     version: 0.1.1
   - apiVersion: v2
     appVersion: latest
-    created: "2023-04-18T23:51:18.151150324-03:00"
+    created: "2023-05-29T16:57:58.518733137-03:00"
     description: Watch and react to changes in Kubernetes TLS Secrets
     digest: 0e10d28d20fbd9b926739150286a2303793b6c9cec53a0335e7594ebd6597e62
     name: cert-watch
@@ -81,4 +91,4 @@ entries:
     urls:
     - cert-watch-0.1.0.tgz
     version: 0.1.0
-generated: "2023-04-18T23:51:18.145411082-03:00"
+generated: "2023-05-29T16:57:58.512351639-03:00"
