@@ -2,6 +2,7 @@ package util
 
 import (
 	"errors"
+	"strings"
 
 	certwatchv1 "github.com/jhmorimoto/cert-watch/apis/certwatch/v1"
 	"github.com/magiconair/properties"
@@ -49,12 +50,21 @@ func ProcessEmail(cw *certwatchv1.CertWatcher, certFilesDir string, emailConfigu
 
 	email := mail.NewMSG()
 	email.SetFrom(from)
-	email.AddTo(cw.Spec.Actions.Email.To)
+	// var emailString string
+	for _, emailString := range strings.Split(cw.Spec.Actions.Email.To, ",") {
+		email.AddTo(emailString)
+	}
 	if cw.Spec.Actions.Email.Cc != "" {
-		email.AddCc(cw.Spec.Actions.Email.Cc)
+		// email.AddCc(cw.Spec.Actions.Email.Cc)
+		for _, emailString := range strings.Split(cw.Spec.Actions.Email.Cc, ",") {
+			email.AddCc(emailString)
+		}
 	}
 	if cw.Spec.Actions.Email.Bcc != "" {
-		email.AddBcc(cw.Spec.Actions.Email.Bcc)
+		// email.AddBcc(cw.Spec.Actions.Email.Bcc)
+		for _, emailString := range strings.Split(cw.Spec.Actions.Email.Bcc, ",") {
+			email.AddBcc(emailString)
+		}
 	}
 	email.SetSubject(cw.Spec.Actions.Email.Subject)
 
